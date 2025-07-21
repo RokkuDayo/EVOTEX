@@ -102,7 +102,7 @@ struct headerGTX_t {
     TEX_TYPE textureType;
     u32 imageWidth;
     u32 imageHeight;
-    u32 imageSlices; // Could also be depth in an atlas but it does correspond to the amount of slices in cubemaps.
+    u32 imageDepth; //Corresponds to the amount of sides in cubemaps and slices in an atlas.
     u32 imageMipLevels;
     DXGI_FORMAT dxgiFormat;
     be type::Hex<u64> FNV_2;

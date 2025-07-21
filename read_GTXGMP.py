@@ -140,7 +140,8 @@ header_Full = Struct(
         "BLXP": header_GTX,
         "BPIM": header_GMP,
     }, default=Pass),
-    "DDSDataLength" / Int32ul
+    "DDSDataLength" / Int32ul,
+    "DDSData" / Bytes(this.DDSDataLength)
 )
 
 inputFile = "Samples/startScreen_Amplified.gtx"
