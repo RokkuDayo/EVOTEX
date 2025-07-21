@@ -4,6 +4,9 @@ A tool for reading and writing textures for games using the Codemasters EVO engi
 
 Supports both GTX (Game Texture) and GMP (Game Mipmap) formats.
 
+
 To-do:
+
  • Add support for Onrush.
+ 
  • Solve all the unknown properties.
