@@ -1,1 +1,3 @@
-A tool for the texture formats in the Codemasters EVO engine.
+# EVOTEX | Codemasters EVO Texture Format Tool
+
+A tool for reading and creating textures for games using the Codemasters EVO engine.
