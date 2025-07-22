@@ -7,6 +7,6 @@ Supports both GTX (Game Texture) and GMP (Game Mipmap) formats.
 
 To-do:
 
- • Add support for Onrush.
+ • Enhance support for Onrush.
  
  • Solve all the unknown properties.

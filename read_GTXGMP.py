@@ -56,96 +56,95 @@ DXGI_FORMAT = Enum(Int32ul,
 )
 
 header_Master = Struct(
-    "sigMaster" / Bytes(29),
+    "sigMaster"           / Bytes(29),
     
-    "unk1" / Int32ul,
-    "unk2" / Int32ul,
-    "unk3" / Int32ul,
+    "unk1"                / Int32ul,
+    "unk2"                / Int32ul,
+    "unk3"                / Int32ul,
 
-    "texCondLength" / Int32ul,
-    "texCondSig" / Bytes(this.texCondLength)
+    "texCondLength"       / Int32ul,
+    "texCondSig"          / Bytes(this.texCondLength)
 )
 
 header_GTX = Struct(
-    "fileNameLength" / Int32ul,
-    "fileName" / PaddedString(this.fileNameLength, "utf8"),
+    "fileNameLength"      / Int32ul,
+    "fileName"            / PaddedString(this.fileNameLength, "utf8"),
 
-    "unk1" / Int32ul,
+    "unk1"                / Int32ul,
 
-    "FNV_1" / Bytes(8),
+    "FNV_1"               / Bytes(8),
 
-    "unk2" / Int32ub,
+    "unk2"                / Int32ub,
 
-    "imageType" / TEX_TYPE,
-    "imageWidth" / Int32ul,
-    "imageHeight" / Int32ul,
-    "imageDepth" / Int32ul, # Corresponds to the amount of slices in cubemaps and slices in an atlas.
-    "imageMipLevels" / Int32ul,
+    "imageType"           / TEX_TYPE,
+    "imageWidth"          / Int32ul,
+    "imageHeight"         / Int32ul,
+    "imageDepth"          / Int32ul, # Corresponds to the amount of slices in cubemaps and slices in an atlas.
+    "imageMipLevels"      / Int32ul,
 
-    "dxgiFormat" / DXGI_FORMAT,
+    "dxgiFormat"          / DXGI_FORMAT,
 
-    "FNV_2" / Bytes(8),
+    "FNV_2"               / Bytes(8),
 
     "offsetToFilePathLength" / Int32ul, # Length of FNV + FILENAME + SEPARATOR
     
-    "FNV_3" / Bytes(8),
+    "FNV_3"               / Bytes(8),
 
-    "fileName_2" / PaddedString((this.fileNameLength), "utf8"),
-    "separator" / Bytes(1),  # It's always set to 00 so I presume it's some kind of padding or separator.
-    "filePathLength" / Int8ul,
-    "filePath" / PaddedString((this.filePathLength), "utf8"),
+    "fileName_2"          / PaddedString((this.fileNameLength), "utf8"),
+    "separator"           / Bytes(1),  # It's always set to 0x00 so I presume it's some kind of padding or separator.
+    "filePathLength"      / Int8ul,
+    "filePath"            / PaddedString((this.filePathLength), "utf8"),
 
-    "imageMipLevelsMax" / Int32ul, # Amount of mipmaps in last GMP tier.
-    "imageWidthMax" / Int32ul, # Width of the last GMP tier.
-    "imageHeightMax" / Int32ul, # Height of the last GMP tier.
-    "unk4" / Int32ul,
-    "imageTierCount" / Int32ul, # Amount of extra GMP tiers. Seems to be set to 0 in some textures despite them having extra tiers?
-    "unk5" / Int32ul, # This could be the image's repeat mode as there's mentions of that being an option in Onrush's executable
-                      # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
+    "imageMipLevelsMax"   / Int32ul, # Amount of mipmaps in last GMP tier.
+    "imageWidthMax"       / Int32ul, # Width of the last GMP tier.
+    "imageHeightMax"      / Int32ul, # Height of the last GMP tier.
+    "unk4"                / Int32ul,
+    "imageTierCount"      / Int32ul, # Amount of extra GMP tiers. Seems to be set to 0 in some textures despite them having extra tiers?
+    "unk5"                / Int32ul, # This could be the image's repeat mode as there's mentions of that being an option in Onrush's executable
+                          # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
     
-    "unkExtra" / If(this.unk1 == 9, Int32ul),
+    "unkExtra"            / If(this.unk1 == 9, Int32ul),
 )
 
 header_GMP = Struct(
-    "fileNameLength" / Int32ul,
-    "fileName" / PaddedString(this.fileNameLength, "utf8"),
+    "fileNameLength"      / Int32ul,
+    "fileName"            / PaddedString(this.fileNameLength, "utf8"),
 
-    "unk1" / Int32ul,
+    "unk1"                / Int32ul,
 
-    "FNV_1" / Bytes(8),
+    "FNV_1"               / Bytes(8),
 
-    "unk2" / Int32ul,
+    "unk2"                / Int32ul,
 
-    "imageWidth" / Int32ul,
-    "imageHeight" / Int32ul,
-    "imageDepth" / Int32ul,
-    "imageTierNumber" / Int32ul,
+    "imageWidth"          / Int32ul,
+    "imageHeight"         / Int32ul,
+    "imageDepth"          / Int32ul,
+    "imageTierNumber"     / Int32ul,
 
     "dxgiFormat" / DXGI_FORMAT,
 
     "FNV_2" / Bytes(8),
 
-    "fileName2Length" / Int8ul,
-    "fileName_2" / PaddedString((this.fileName2Length), "utf8"),
+    "fileName2Length"     / Int8ul,
+    "fileName_2"          / PaddedString((this.fileName2Length), "utf8"),
 
-    "fileGTX_FNV" / Bytes(8),
-    "fileGTXNameLength" / Int8ul,
-    "fileGTXName" / PaddedString((this.fileGTXNameLength), "utf8"),
+    "fileGTX_FNV"         / Bytes(8),
+    "fileGTXNameLength"   / Int8ul,
+    "fileGTXName"         / PaddedString((this.fileGTXNameLength), "utf8"),
 )
 
 header_Full = Struct(
-    "EVO Master Header" / header_Master,
-    "sigGTXorGMP" / PaddedString(4, "utf8"),
-    "TextureHeader" / Switch(this.sigGTXorGMP, {
+    "EVO Master Header"   / header_Master,
+    "sigGTXorGMP"         / PaddedString(4, "utf8"),
+    "TextureHeader"       / Switch(this.sigGTXorGMP, {
         "BLXP": header_GTX,
         "BPIM": header_GMP,
     }, default=Pass),
-    "DDSDataLength" / Int32ul,
-    "DDSData" / Bytes(this.DDSDataLength)
+    "DDSDataLength"       / Int32ul,
+    "DDSData"             / Bytes(this.DDSDataLength)
 )
 
-inputFile = "Samples/startScreen_Amplified.gtx"
-
-with open(inputFile, "rb") as f:
-    data = header_Full.parse_stream(f)
-    print(data)
+def readGTXGMP(fileGTXGMP):
+    with open(fileGTXGMP, "rb") as f:
+        evoTexData = header_Full.parse_stream(f)
+        return(evoTexData)
