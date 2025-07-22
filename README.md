@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Assets/EVOTEXLogo.png" />
+  <img src="Assets/EVOTEXLogo.png" width="200" />
 </p>
 
 # EVOTEX | Codemasters EVO Texture Tool
