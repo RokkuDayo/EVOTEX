@@ -1,7 +1,48 @@
+import imageio
 import tkinter as tk
+from tkinter import filedialog
 from PIL import ImageTk, Image
 
-def aboutWindow():
+def EVOTEX_openFile(extName):
+    filepath = filedialog.askopenfilename(filetypes=[(f"{extName} files", f"*.{extName}")])
+    if filepath:
+        try:
+            ddsImg = EVOTEX_loadDDS(filepath)
+            ddsImg.thumbnail((800, 800))
+            ddsTk = ImageTk.PhotoImage(ddsImg)
+            textureDisplay.config(image = ddsTk)
+            textureDisplay.image = ddsTk
+            root.title(f"EVOTEX - Viewing: {filepath}")
+        except Exception as e:
+            print(f"Failed to load image: {e}")
+
+def EVOTEX_loadDDS(ddsPath):
+    ddsTex = imageio.v2.imread(ddsPath)
+    return (Image.fromarray(ddsTex))
+
+def EVOTEX_menuBar():
+    evoMenubar = tk.Menu(root)
+    fileMenu = tk.Menu(evoMenubar, tearoff=0)
+    textureMenu = tk.Menu(evoMenubar, tearoff=0)
+    evoMenubar.add_cascade(label="File", menu=fileMenu)
+
+    fileMenu.add_command(label="Open GTX/GMP File")
+    fileMenu.add_command(label="Close Current File")
+    fileMenu.add_separator()
+    fileMenu.add_command(label="Export to GTX")
+    fileMenu.add_command(label="Export to GMP")
+    fileMenu.add_separator()
+    fileMenu.add_command(label="Exit", command=quit)
+
+    evoMenubar.add_cascade(label="Texture", menu=textureMenu)
+    textureMenu.add_command(label="Import DDS", command=lambda: EVOTEX_openFile("dds"))
+    textureMenu.add_command(label="Export to DDS")
+
+    evoMenubar.add_command(label="About", command=EVOTEX_aboutWindow)
+
+    root.config(menu = evoMenubar)
+
+def EVOTEX_aboutWindow():
     about = tk.Tk()
     about.title("About")
     about.geometry("400x300")
@@ -21,30 +62,13 @@ def aboutWindow():
 
 root = tk.Tk()
 
-evoMenubar = tk.Menu(root)
-fileMenu = tk.Menu(evoMenubar, tearoff=0)
-textureMenu = tk.Menu(evoMenubar, tearoff=0)
-evoMenubar.add_cascade(label="File", menu=fileMenu)
+EVOTEX_menuBar()
 
-fileMenu.add_command(label="Open GTX/GMP File")
-fileMenu.add_command(label="Close Current File")
-fileMenu.add_separator()
-fileMenu.add_command(label="Export to GTX")
-fileMenu.add_command(label="Export to GMP")
-fileMenu.add_separator()
-fileMenu.add_command(label="Exit", command=quit)
-
-evoMenubar.add_cascade(label="Texture", menu=textureMenu)
-textureMenu.add_command(label="Import DDS as GTX")
-textureMenu.add_command(label="Import DDS as GMP")
-textureMenu.add_separator()
-textureMenu.add_command(label="Export to DDS")
-
-evoMenubar.add_command(label="About", command=aboutWindow)
+textureDisplay = tk.Label(root)
+textureDisplay.pack(expand=True)
 
 root.geometry("900x720")
 root.title("EVOTEX - Codemasters EVO Texture Tool")
 root.iconbitmap("Assets/EVOTEXIcon.ico")
-root.config(menu = evoMenubar)
 
 root.mainloop()

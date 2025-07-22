@@ -1,6 +1,8 @@
 from read_GTXGMP import *
-from construct import *
 import struct
+
+def remap(value, remapdict, fail):
+    return remapdict.get(value, fail)
 
 dx_ver_remap = {
     "eR8UNorm": 61,
@@ -57,30 +59,33 @@ dx_type_remap = {
     "Cubemap": 4
 }
 
-def remap(value, remapdict, fail):
-    return remapdict.get(value, fail)
-
-gameTexData = readGTXGMP("Samples/sky_saltplain2.gtx")
+#This might be the worst way to do this but it works in my head.
 
 ddsSig = b"\x44\x44\x53\x20"
 ddsSize = b"\x7C\x00\x00\x00"
 ddsFlags = b"\x07\x10\x0A\x00"
-gameHeight = gameTexData.TextureHeader.imageHeight
-gameWidth = gameTexData.TextureHeader.imageWidth
-ddsPitch = 0
-gameDepth = gameTexData.TextureHeader.imageDepth
-gameMips = gameTexData.TextureHeader.imageMipLevels
 ddsMisc = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x4E\x56\x54\x33\x01\x00\x00\x00\x20\x00\x00\x00\x04\x00\x00\x00\x44\x58\x31\x30\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x10\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-ddsVer = remap(gameTexData.TextureHeader.dxgiFormat, dx_ver_remap, 99)
-ddsType = remap(gameTexData.TextureHeader.imageType, dx_type_remap, 0)
+ddsPitch = 0
 ddsFlagsPad = 0
 ddsArraySize = 0
 ddsAlphaMode = 0
 
-ddsByteData = (ddsSig + ddsSize + ddsFlags
-            + struct.pack("iiiii", gameHeight, gameWidth, ddsPitch, gameDepth, gameMips)
-            + ddsMisc + struct.pack("iiiii", ddsVer, ddsType, ddsFlagsPad, ddsArraySize, ddsAlphaMode)
-            + gameTexData.DDSData)
+def convertGTX2DDS(fileGTX):
+    gameTexData = readGTXGMP(fileGTX)
 
-with open("skibidi.dds", 'wb') as file:
-    file.write(ddsByteData)
+    gameHeight = gameTexData.TextureHeader.imageHeight
+    gameWidth = gameTexData.TextureHeader.imageWidth
+    gameDepth = gameTexData.TextureHeader.imageDepth
+    gameMips = gameTexData.TextureHeader.imageMipLevels
+    gameDXVer = remap(gameTexData.TextureHeader.dxgiFormat, dx_ver_remap, 99)
+    gameDXType = remap(gameTexData.TextureHeader.imageType, dx_type_remap, 0)
+
+    ddsByteData = (ddsSig + ddsSize + ddsFlags
+                + struct.pack("iiiii", gameHeight, gameWidth, ddsPitch, gameDepth, gameMips)
+                + ddsMisc + struct.pack("iiiii", gameDXVer, gameDXType, ddsFlagsPad, ddsArraySize, ddsAlphaMode)
+                + gameTexData.DDSData)
+
+    with open(f"{gameTexData.TextureHeader.fileName}.dds", 'wb') as file:
+        file.write(ddsByteData)
+
+#convertGTX2DDS("Samples/startScreen_Amplified.gtx")
