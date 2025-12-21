@@ -21,3 +21,5 @@ Python scripts for reading and writing textures for games using the Codemasters 
 	- Example: `python DIRT5-ONRUSH_convert_Game2DDS.py "E:\Games\Steam\steamapps\common\DIRT 5\data\patch_wip\textures\liveryEditor3\generic\stickers\decal_007.gtx"`
   - Supports all texture types and compression formats used by the game.
   - GMP files must have their parent GTX file in the same directory to be converted.
+
+Feel free to join the [Driveclub Modding Discord](https://discord.gg/CdypCWdJDH) if you wish to join discussions about modding DIRT 5 and how to run it with unpacked files.
