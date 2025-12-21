@@ -176,7 +176,7 @@ header_Full = Struct(
         "BLXP": Switch(this.EVOMasterHeader.texCondLength, {
             43: header_GTX_DIRT5,
             47: header_GTX_ONRUSH,
-        }, default=Pass),
+        }, default=header_GTX_DIRT5),
         "BPIM": header_GMP,
     }, default=Pass),
     "DDSDataLength"       / Int32ul,
