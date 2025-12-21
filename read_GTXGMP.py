@@ -66,7 +66,7 @@ header_Master = Struct(
     "texCondSig"          / Bytes(this.texCondLength)
 )
 
-header_GTX = Struct(
+header_GTX_DIRT5 = Struct(
     "fileNameLength"      / Int32ul,
     "fileName"            / PaddedString(this.fileNameLength, "utf8"),
 
@@ -92,6 +92,42 @@ header_GTX = Struct(
 
     "fileName_2"          / PaddedString((this.fileNameLength), "utf8"),
     "separator"           / Bytes(1),  # It's always set to 0x00 so I presume it's some kind of padding or separator.
+    "filePathLength"      / Int8ul,
+    "filePath"            / PaddedString((this.filePathLength), "utf8"),
+
+    "imageMipLevelsMax"   / Int32ul, # Amount of mipmaps in last GMP tier.
+    "imageWidthMax"       / Int32ul, # Width of the last GMP tier.
+    "imageHeightMax"      / Int32ul, # Height of the last GMP tier.
+    "unk4"                / Int32ul,
+    "imageTierCount"      / Int32ul, # Amount of extra GMP tiers. Seems to be set to 0 in some textures despite them having extra tiers?
+    "unk5"                / Int32ul, # This could be the image's repeat mode as there's mentions of that being an option in Onrush's executable
+                          # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
+    
+    "unkExtra"            / If(this.unk1 == 9, Int32ul),
+)
+
+header_GTX_ONRUSH = Struct(
+    "fileNameLength"      / Int32ul,
+    "fileName"            / PaddedString(this.fileNameLength, "utf8"),
+
+    "unk1"                / Int32ul,
+
+    "FNV_1"               / Bytes(8),
+
+    "unk2"                / Int32ub,
+
+    "imageType"           / TEX_TYPE,
+    "imageWidth"          / Int32ul,
+    "imageHeight"         / Int32ul,
+    "imageDepth"          / Int32ul, # Corresponds to the amount of slices in cubemaps and slices in an atlas.
+    "imageMipLevels"      / Int32ul,
+
+    "dxgiFormat"          / DXGI_FORMAT,
+
+    "FNV_2"               / Bytes(8),
+
+    "fileNameLength_2"    / Int8ul,
+    "fileName_2"          / PaddedString((this.fileNameLength_2), "utf8"),
     "filePathLength"      / Int8ul,
     "filePath"            / PaddedString((this.filePathLength), "utf8"),
 
@@ -134,10 +170,13 @@ header_GMP = Struct(
 )
 
 header_Full = Struct(
-    "EVO Master Header"   / header_Master,
+    "EVOMasterHeader"   / header_Master,
     "sigGTXorGMP"         / PaddedString(4, "utf8"),
     "TextureHeader"       / Switch(this.sigGTXorGMP, {
-        "BLXP": header_GTX,
+        "BLXP": Switch(this.EVOMasterHeader.texCondLength, {
+            43: header_GTX_DIRT5,
+            47: header_GTX_ONRUSH,
+        }, default=Pass),
         "BPIM": header_GMP,
     }, default=Pass),
     "DDSDataLength"       / Int32ul,
@@ -148,3 +187,10 @@ def readGTXGMP(fileGTXGMP):
     with open(fileGTXGMP, "rb") as f:
         evoTexData = header_Full.parse_stream(f)
         return(evoTexData)
+
+#if len(sys.argv) > 1:
+#    print(readGTXGMP(sys.argv[1]))
+#    print("Conversion complete!")
+#else:
+#    print("No file passed as an argument.")
+#    print("Usage: python read_GTXGMP.py [GTX/GMP FILE PATH]")

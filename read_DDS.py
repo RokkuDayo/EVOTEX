@@ -1,5 +1,4 @@
 from construct import *
-import enum
 
 DXGI_FORMAT = Enum(Int32ul,
     UNKNOWN = 0,
@@ -140,14 +139,6 @@ DX10AlphaMode = Enum(Int32ul,
     Custom = 4
 )
 
-header_DX10 = Struct(
-    Padding(40),
-    "dxgiFormat"              / DXGI_FORMAT,
-    "dx10ResourceDimension"   / DX10ResourceDimension,
-    "arraySize"               / Int32ul,
-    "dx10AlphaMode"           / DX10AlphaMode
-)
-
 header_DDS = Struct(
     "id"                      / PaddedString(4, "utf8"),
     "headerSize"              / Int32ul,
@@ -161,9 +152,12 @@ header_DDS = Struct(
     "ddspfSize"               / Int32ul,
     Padding(4),
     "fourCC"                  / PaddedString(4, "utf8"),
-    "DXTHeader"               / Switch(this.fourCC, {
-        "DX10": header_DX10
-    }, default=Padding(40)),
+    Padding(40),
+    "dxgiFormat"              / DXGI_FORMAT,
+    "dx10ResourceDimension"   / DX10ResourceDimension,
+    "miscFlags"               / Int32ul,
+    "arraySize"               / Int32ul,
+    "dx10AlphaMode"           / DX10AlphaMode,
     "ImageData"               / GreedyBytes
 )
 
@@ -172,4 +166,6 @@ def readDDS(ddsfile):
         ddsData = header_DDS.parse_stream(f)
         return(ddsData)
 
-#print(readDDS("Samples\SUIG_BC5.dds"))
+
+#filel = readDDS("../Samples/cubemap.dds")   
+#print(filel)
