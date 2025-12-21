@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="Assets/EVOTEXLogo.png" width="200" />
+</p>
+
 # EVOTEX | Codemasters EVO Texture Tool
 
 Python scripts for reading and writing textures for games using the Codemasters EVO engine (DIRT 5 and Onrush).
