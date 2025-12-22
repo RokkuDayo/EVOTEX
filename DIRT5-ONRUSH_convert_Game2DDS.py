@@ -79,6 +79,7 @@ ddsReserved2 = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 def convertGame2DDS(fileGame):
     fileGameRoot, fileGameExt = os.path.splitext(fileGame)
+    fileGameName = os.path.splitext(os.path.basename(fileGame))[0]
     
     if fileGameExt.lower() == ".gmp":
         print("GMP (Game Mip Map) detected.")
@@ -146,11 +147,11 @@ def convertGame2DDS(fileGame):
 
 
     if fileGameExt.lower() == ".gtx":
-        with open(f"{dataGTXGame.TextureHeader.fileName}.dds", 'wb') as file:
+        with open(f"{fileGameName}.dds", 'wb') as file:
             file.write(dataDDSFinalBytes)
 
     if fileGameExt.lower() == ".gmp":
-        with open(f"{dataGTXGame.TextureHeader.fileName}" + f"_tier{dataGTXGame.TextureHeader.imageTierCount - dataGMPGame.TextureHeader.imageTierNumber}" + ".dds", 'wb') as file:
+        with open(f"{fileGameName}" + ".dds", 'wb') as file:
             file.write(dataDDSFinalBytes)
 
 if len(sys.argv) > 1:
