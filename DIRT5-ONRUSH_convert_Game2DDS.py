@@ -145,14 +145,8 @@ def convertGame2DDS(fileGame):
                 + struct.pack("ii", ddsArraySize, ddsAlphaMode)
                 + dataGameDDSRaw)
 
-
-    if fileGameExt.lower() == ".gtx":
-        with open(f"{fileGameName}.dds", 'wb') as file:
-            file.write(dataDDSFinalBytes)
-
-    if fileGameExt.lower() == ".gmp":
-        with open(f"{fileGameName}" + ".dds", 'wb') as file:
-            file.write(dataDDSFinalBytes)
+    with open(f"{fileGameName}" + ".dds", 'wb') as file:
+        file.write(dataDDSFinalBytes)
 
 if len(sys.argv) > 1:
     try:
