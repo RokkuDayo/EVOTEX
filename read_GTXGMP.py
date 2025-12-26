@@ -1,3 +1,4 @@
+#type:ignore
 from construct import *
 
 TEX_TYPE = Enum(Int32ul,
@@ -56,14 +57,18 @@ DXGI_FORMAT = Enum(Int32ul,
 )
 
 header_Master = Struct(
-    "sigMaster"           / Bytes(29),
-    
-    "unk1"                / Int32ul,
-    "unk2"                / Int32ul,
-    "unk3"                / Int32ul,
-
-    "texCondLength"       / Int32ul,
-    "texCondSig"          / Bytes(this.texCondLength)
+    "masterHeaderSize"             / Int8ul,
+    "masterHeader"                 / PaddedString((this.masterHeaderSize), "utf8"),
+    Padding(8),
+    "conditionerSize"              / Int32ul,
+    "unkCond"                      / Int32ul,
+    "chunkTag"                     / PaddedString(4, "utf8"),
+    "chunkCount"                   / Int32ul,
+    "conditionerNameSize"          / Int8ul,
+    "conditionerName"              / PaddedString((this.conditionerNameSize), "utf8"),
+    "conditionerVersionSize"       / Int8ul,
+    "conditionerVersion"           / PaddedString((this.conditionerVersionSize), "utf8"),
+    "unkCond2"                     / Int32ul
 )
 
 header_GTX_DIRT5 = Struct(
@@ -139,7 +144,7 @@ header_GTX_ONRUSH = Struct(
     "unk5"                / Int32ul, # This could be the image's repeat mode as there's mentions of that being an option in Onrush's executable
                           # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
     
-    "unkExtra"            / If(this.unk1 == 9, Int32ul),
+    "unkExtra"            / If(this.unk1 == 9, Int32ul) # Need to look into why this is the case.
 )
 
 header_GMP = Struct(
@@ -166,19 +171,19 @@ header_GMP = Struct(
 
     "fileGTX_FNV"         / Bytes(8),
     "fileGTXNameLength"   / Int8ul,
-    "fileGTXName"         / PaddedString((this.fileGTXNameLength), "utf8"),
+    "fileGTXName"         / PaddedString((this.fileGTXNameLength), "utf8")
 )
 
 header_Full = Struct(
     "EVOMasterHeader"   / header_Master,
     "sigGTXorGMP"         / PaddedString(4, "utf8"),
     "TextureHeader"       / Switch(this.sigGTXorGMP, {
-        "BLXP": Switch(this.EVOMasterHeader.texCondLength, {
+        "BLXP": Switch(this.EVOMasterHeader.conditionerSize, {
             43: header_GTX_DIRT5,
             47: header_GTX_ONRUSH,
         }, default=header_GTX_DIRT5),
         "BPIM": header_GMP,
-    }, default=Pass),
+    }, default=Pass), # This is a dirty hack. Need to figure out how to properly handle file versions as they fluctuate a lot, specially in Onrush.
     "DDSDataLength"       / Int32ul,
     "DDSData"             / Bytes(this.DDSDataLength)
 )
