@@ -141,7 +141,7 @@ header_GTX_ONRUSH = Struct(
     "imageHeightMax"      / Int32ul, # Height of the last GMP tier.
     "unk4"                / Int32ul,
     "imageTierCount"      / Int32ul, # Amount of extra GMP tiers. Seems to be set to 0 in some textures despite them having extra tiers?
-    "unk5"                / Int32ul, # This could be the image's repeat mode as there's mentions of that being an option in Onrush's executable
+    "unk5"                / Int32ul, # This could be the image's tiling mode as there's mentions of that being an option in Onrush's executable
                           # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
     
     "unkExtra"            / If(this.unk1 == 9, Int32ul) # Need to look into why this is the case.
@@ -175,7 +175,7 @@ header_GMP = Struct(
 )
 
 header_Full = Struct(
-    "EVOMasterHeader"   / header_Master,
+    "EVOMasterHeader"     / header_Master,
     "sigGTXorGMP"         / PaddedString(4, "utf8"),
     "TextureHeader"       / Switch(this.sigGTXorGMP, {
         "BLXP": Switch(this.EVOMasterHeader.conditionerSize, {
@@ -183,7 +183,7 @@ header_Full = Struct(
             47: header_GTX_ONRUSH,
         }, default=header_GTX_DIRT5),
         "BPIM": header_GMP,
-    }, default=Pass), # This is a dirty hack. Need to figure out how to properly handle file versions as they fluctuate a lot, specially in Onrush.
+    }, default=Pass), # This is a dirty hack. Need to figure out how to properly handle file versions as they fluctuate a lot, especially in Onrush.
     "DDSDataLength"       / Int32ul,
     "DDSData"             / Bytes(this.DDSDataLength)
 )
