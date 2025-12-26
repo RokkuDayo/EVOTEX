@@ -79,7 +79,7 @@ header_GTX_DIRT5 = Struct(
 
     "FNV_1"               / Bytes(8),
 
-    "unk2"                / Int32ub,
+    "unk2"                / Int32ul,
 
     "imageType"           / TEX_TYPE,
     "imageWidth"          / Int32ul,
@@ -108,7 +108,7 @@ header_GTX_DIRT5 = Struct(
     "unk5"                / Int32ul, # This could be the image's repeat mode as there's mentions of that being an option in Onrush's executable
                           # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
     
-    "unkExtra"            / If(this.unk1 == 9, Int32ul),
+    "unk6"                / If(this.unk1 == 9, Int32ul),
 )
 
 header_GTX_ONRUSH = Struct(
@@ -119,7 +119,7 @@ header_GTX_ONRUSH = Struct(
 
     "FNV_1"               / Bytes(8),
 
-    "unk2"                / Int32ub,
+    "unk2"                / Int32ul,
 
     "imageType"           / TEX_TYPE,
     "imageWidth"          / Int32ul,
@@ -131,10 +131,15 @@ header_GTX_ONRUSH = Struct(
 
     "FNV_2"               / Bytes(8),
 
-    "fileNameLength_2"    / Int8ul,
-    "fileName_2"          / PaddedString((this.fileNameLength_2), "utf8"),
+    "fileNameLength2"     / Switch(this.unk1, {
+        9: Int32ul,
+        7: Int8ul,
+    }, default=Int8ul),
+    "FNV_3"               / If(this.unk1 == 9, Bytes(8)),
+    "fileName_2"          / Bytes((this.fileNameLength)),
+    "fileNameSeparator"   / If(this.unk1 == 9, Int8ul),
     "filePathLength"      / Int8ul,
-    "filePath"            / PaddedString((this.filePathLength), "utf8"),
+    "filePath"            / Bytes((this.filePathLength)),
 
     "imageMipLevelsMax"   / Int32ul, # Amount of mipmaps in last GMP tier.
     "imageWidthMax"       / Int32ul, # Width of the last GMP tier.
@@ -142,9 +147,8 @@ header_GTX_ONRUSH = Struct(
     "unk4"                / Int32ul,
     "imageTierCount"      / Int32ul, # Amount of extra GMP tiers. Seems to be set to 0 in some textures despite them having extra tiers?
     "unk5"                / Int32ul, # This could be the image's tiling mode as there's mentions of that being an option in Onrush's executable
-                          # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.
-    
-    "unkExtra"            / If(this.unk1 == 9, Int32ul) # Need to look into why this is the case.
+                          # (WRAP, MIRROR, CLAMP, BORDER, MIRROR_ONCE, COUNT), but it's hard to check when I couldn't find an instance of this value being anything but zero.   
+    "unk6"                / If(this.unk1 != 7, Int32ul)
 )
 
 header_GMP = Struct(
@@ -162,9 +166,9 @@ header_GMP = Struct(
     "imageDepth"          / Int32ul,
     "imageTierNumber"     / Int32ul,
 
-    "dxgiFormat" / DXGI_FORMAT,
+    "dxgiFormat"          / DXGI_FORMAT,
 
-    "FNV_2" / Bytes(8),
+    "FNV_2"               / Bytes(8),
 
     "fileName2Length"     / Int8ul,
     "fileName_2"          / PaddedString((this.fileName2Length), "utf8"),
@@ -181,7 +185,7 @@ header_Full = Struct(
         "BLXP": Switch(this.EVOMasterHeader.conditionerSize, {
             43: header_GTX_DIRT5,
             47: header_GTX_ONRUSH,
-        }, default=header_GTX_DIRT5),
+        }, default = header_GTX_DIRT5),
         "BPIM": header_GMP,
     }, default=Pass), # This is a dirty hack. Need to figure out how to properly handle file versions as they fluctuate a lot, especially in Onrush.
     "DDSDataLength"       / Int32ul,
@@ -193,6 +197,8 @@ def readGTXGMP(fileGTXGMP):
         evoTexData = header_Full.parse_stream(f)
         return(evoTexData)
 
+
+#print(readGTXGMP("TIER_4_EVENT_9.gtx"))
 #if len(sys.argv) > 1:
 #    print(readGTXGMP(sys.argv[1]))
 #    print("Conversion complete!")
